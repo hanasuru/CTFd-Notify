@@ -1,11 +1,12 @@
 from helper import limit, run_in_thread
 from bs4 import BeautifulSoup as bs
 
-import config
 import requests
 import database
 
 import queue
+import os
+import json
 
 API_ENDPOINT = {
     'login': '/login',
@@ -26,7 +27,7 @@ class Request(object):
 
         self.username = username
         self.password = password
-        self.proxy = proxy
+        self.proxy = json.loads(proxy)
         self.url = url
 
         self.create_session()
@@ -80,7 +81,7 @@ class Request(object):
         return scoreboard_data
 
     def get_teams(self):
-        target_url = self.url + API_ENDPOINT.get(config.MODE)
+        target_url = self.url + API_ENDPOINT.get(os.getenv('MODE'))
         response = self.ses.get(target_url)
 
         try:
@@ -126,7 +127,7 @@ class Request(object):
 
         return challenges
 
-    @limit(config.WORKER)
+    @limit(int(os.getenv('WORKER')))
     @run_in_thread
     def get_submission_by_id(self, challenge_id):
         target_url = self.url + API_ENDPOINT.get('solve').format(challenge_id)
@@ -138,7 +139,7 @@ class Request(object):
         )
 
 
-    @limit(config.WORKER)
+    @limit(int(os.getenv('WORKER')))
     def get_submissions(self):
         for challenge in self.challenges.items():
             challenge_id, challenge_name = challenge
@@ -172,10 +173,10 @@ class Request(object):
 
 def get_session():
     instance = Request(
-        config.USERNAME,
-        config.PASSWORD,
-        config.PROXY,
-        config.CTFD_URL
+        os.getenv('USERNAME'),
+        os.getenv('PASSWORD'),
+        os.getenv('PROXY'),
+        os.getenv('CTFD_URL')
     )
 
     return instance

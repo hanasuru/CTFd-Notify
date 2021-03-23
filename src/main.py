@@ -1,15 +1,16 @@
+from dotenv import load_dotenv
+load_dotenv()
+
 from discord.ext import commands
 from discord.ext import tasks
 from discord import Game
 from discord import Status
 
 import database
-import config
 import utils
 
 import time
 import os
-
 
 sessions = utils.get_session()
 client = commands.Bot(
@@ -26,14 +27,14 @@ async def on_ready():
 
     await client.change_presence(
         status = Status.online,
-        activity = Game(config.STATUS)
+        activity = Game(os.getenv('STATUS'))
     )
 
     print('[+] Bot is ready to start')
 
 @client.command('flag')
 async def flag(ctx):
-    flag = config.FLAG
+    flag = os.getenv('FLAG')
     await ctx.message.delete()
     await ctx.author.send(flag)
 
@@ -77,7 +78,7 @@ async def on_challenge_update():
     print('[~] Updating challenge')
 
     update_challenge = sessions.get_update_challenges()
-    channel = client.get_channel(config.CHANNEL_ID)
+    channel = client.get_channel(int(os.getenv('CHANNEL_ID')))
 
     for challenge in update_challenge.values():
         print(f'   * Added {challenge} challenges')
@@ -88,7 +89,7 @@ async def on_challenge_update():
 @tasks.loop(seconds=5)
 async def on_submission_update():
     print('[#] Checking submission')
-    channel = client.get_channel(config.CHANNEL_ID)
+    channel = client.get_channel(int(os.getenv('CHANNEL_ID')))
     sessions.get_submissions()
 
     for submissions in sessions.current_submission.values():
@@ -109,5 +110,5 @@ async def on_submission_update():
 
 if __name__ == '__main__':
     database.migrate()
-    client.run(config.TOKEN)
+    client.run(os.getenv('TOKEN'))
     
