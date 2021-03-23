@@ -7,6 +7,7 @@ import database
 import queue
 import os
 import json
+import hashlib
 
 API_ENDPOINT = {
     'login': '/login',
@@ -113,17 +114,32 @@ class Request(object):
                 challenges_value = data.get('value')
                 challenges_category = data.get('category')
 
-                status = database.add_challenge(
-                    challenges_id,
-                    challenges_name,
-                    challenges_value,
-                    challenges_category
-                )
+                challs_results = database.get_challenge_by_id(challenges_id)
 
-                if status:
-                    challenges[challenges_id] = f'**{challenges_category}** challenge: `{challenges_name}`'
-                
-                self.challenges[challenges_id] = challenges_name
+                if len(challs_results) == 0:
+                    status = database.add_challenge(
+                        challenges_id,
+                        challenges_name,
+                        challenges_value,
+                        challenges_category
+                    )
+
+                    if status:
+                        challenges[challenges_id] = f'New **{challenges_category}** challenge: `{challenges_name}`'
+                        self.challenges[challenges_id] = challenges_name
+                else:
+                    challs = challs_results[0]
+                    challs_db_hash = hashlib.md5(
+                        ''.join(str(challs[0]) + challs[1] + str(challs[2]) + challs[3]).encode()).hexdigest()
+                    challs_new_hash = hashlib.md5(
+                        (str(challenges_id) + challenges_name + str(challenges_value) + challenges_category).encode()).hexdigest()
+
+                    if challs_db_hash != challs_new_hash:
+                        status = database.update_challenge(challenges_id, challenges_name, challenges_value, challenges_category)
+                        print(status)
+                        if status:
+                            challenges[challenges_id] = f'Update **{challenges_category}** challenge: `{challenges_name}`'
+                            self.challenges[challenges_id] = challenges_name
 
         return challenges
 
