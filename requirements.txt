@@ -1,0 +1,4 @@
+cuttlepool
+requests
+lxml
+bs4
