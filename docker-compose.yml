@@ -1,0 +1,11 @@
+version: '3'
+services:
+  ctfd-notify:
+    build: .
+    restart: unless-stopped
+    networks:
+      - ctfd-notify-network
+      
+networks:
+  ctfd-notify-network:
+    driver: bridge
