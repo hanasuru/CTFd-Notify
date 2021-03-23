@@ -82,7 +82,7 @@ async def on_challenge_update():
 
     for challenge in update_challenge.values():
         print(f'   * Added {challenge} challenges')
-        response = f':zap: New {challenge} :zap:'
+        response = f':zap: {challenge} :zap:'
 
         await channel.send(response)
 

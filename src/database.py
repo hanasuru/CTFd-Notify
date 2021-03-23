@@ -85,6 +85,22 @@ def add_challenge(id, name, value, category):
             ''' Challenge existed '''
             return False
 
+def update_challenge(id, name, value, category):
+    with pool.get_resource() as con:
+        cursor = con.cursor()
+
+        try:
+            cursor.execute('''
+                UPDATE challenges SET name = ?, value = ?, category = ?, CREATED_AT = 0 where id = ?
+            ''', (name, value, category, id))
+
+            con.commit()    
+            return True
+
+        except Exception as e:
+            ''' Failed update challenge '''
+            return False
+
 def get_challenge_by_id(challenge_id):
     with pool.get_resource() as con:
         cursor = con.cursor()
