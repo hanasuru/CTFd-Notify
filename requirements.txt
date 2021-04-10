@@ -4,3 +4,4 @@ lxml
 bs4
 python-dotenv
 mysql.connector
+discord
