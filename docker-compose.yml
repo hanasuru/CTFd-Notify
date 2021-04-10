@@ -5,7 +5,23 @@ services:
     restart: unless-stopped
     networks:
       - ctfd-notify-network
+
+  mysql:
+    image: mysql:5.7
+    volumes:
+      - db_data:/var/lib/mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ctfd_notify
+      MYSQL_DATABASE: ctfd_notify
+      MYSQL_USER: ctfd_notify
+      MYSQL_PASSWORD: ctfd_notify
+    networks:
+      - ctfd-notify-network
       
 networks:
   ctfd-notify-network:
     driver: bridge
+
+volumes:
+  db_data: {}

@@ -3,3 +3,4 @@ requests
 lxml
 bs4
 python-dotenv
+mysql.connector
